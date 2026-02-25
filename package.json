@@ -2,7 +2,7 @@
   "name": "porezko",
   "description": "Porezko je extenzija za kreiranje IPS QR Koda na stranicama lpa.gov.rs",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",
