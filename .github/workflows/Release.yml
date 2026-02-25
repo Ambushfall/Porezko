@@ -2,8 +2,10 @@ name: Release
 
 on:
   push:
+    tags-ignore:
+      - '**'
     branches:
-      - master
+      - '**'
   workflow_dispatch: # Keeps the manual trigger button active
 
 jobs:
@@ -33,6 +35,10 @@ jobs:
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: "default"
+          CHROME_SKIP_SUBMIT_REVIEW: false
+          CHROME_REVIEW_EXEMPTION: true
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
           FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+          FIREFOX_CHANNEL: "listed"
