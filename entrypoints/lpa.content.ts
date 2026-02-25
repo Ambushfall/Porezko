@@ -78,11 +78,10 @@ async function mainWatchSPA (
 
         const [num1, num2, num3] = accountNumber.split('-')
         accountNumber = `${num1}${num2.padStart(13, '0')}${num3}`
-        console.log(accountNumber)
         let totalToPay = `RSD${valueRow
           .querySelectorAll('td')!
-          [arrHeaderIndexes[1]].innerText.trim()}`
-        console.log(totalToPay)
+          [arrHeaderIndexes[1]].innerText.trim().replace(".", "")}`
+        // Handle . in 1000's
 
         let reqObj = buildBody(
           GenerateReqObject(accountNumber, totalToPay, callToNumber)
