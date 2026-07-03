@@ -10,7 +10,7 @@ interface BODYObject {
   RO: string
 }
 
-function buildBody (body: any): RequestInit {
+function buildBody(body: any): RequestInit {
   return {
     cache: 'no-store',
     headers: {
@@ -21,7 +21,7 @@ function buildBody (body: any): RequestInit {
   }
 }
 
-function GenerateReqObject (
+function GenerateReqObject(
   pravilanRacun: string,
   saldoUkupan: string,
   pozivNaBroj: string
@@ -39,7 +39,7 @@ function GenerateReqObject (
   }
 }
 
-async function mainWatchSPA (
+async function mainWatchSPA(
   ctx: InstanceType<typeof ContentScriptContext>
 ): Promise<void> {
   const ui = createIntegratedUi(ctx, {
@@ -58,57 +58,57 @@ async function mainWatchSPA (
         document.querySelectorAll('div.wus-gen.payment.table tr')!
       let [headerRow, valueRow] = tableRows
       let isBalanceNegative = valueRow.querySelector(
-        'td.money:not(.balance-negative)'
+        'td.money:is(.balance-negative)'
       )
-      if (isBalanceNegative) {
-        let arrHeaderIndexes = Array.from(headerRow.querySelectorAll('th')!)
-          .map(column => column.innerText)
-          .flatMap((key, index) =>
-            key.includes('Уплатни рачун') ||
+      if (isBalanceNegative) return;
+
+      let arrHeaderIndexes = Array.from(headerRow.querySelectorAll('th')!)
+        .map(column => column.innerText)
+        .flatMap((key, index) =>
+          key.includes('Уплатни рачун') ||
             key.includes('Uplatni račun') ||
             key.includes('Салдо') ||
             key.includes('Saldo')
-              ? index
-              : undefined
-          )
-          .filter(index => typeof index !== 'undefined')
-        let accountNumber = valueRow
-          .querySelectorAll('td')!
-          [arrHeaderIndexes[0]].innerText.trim()
-
-        const [num1, num2, num3] = accountNumber.split('-')
-        accountNumber = `${num1}${num2.padStart(13, '0')}${num3}`
-        let totalToPay = `RSD${valueRow
-          .querySelectorAll('td')!
-          [arrHeaderIndexes[1]].innerText.trim().replace(".", "")}`
-        // Handle . in 1000's
-
-        let reqObj = buildBody(
-          GenerateReqObject(accountNumber, totalToPay, callToNumber)
+            ? index
+            : undefined
         )
-        let url = 'https://nbs.rs/QRcode/api/qr/v1/gen/500'
-        console.log(reqObj)
-        console.log(url)
-        let res = await fetch(url, reqObj)
-        let dialog = document.createElement('dialog')
-        let image = document.createElement('img')
-        image.src = URL.createObjectURL(await res.blob())
-        dialog.appendChild(image)
-        container.appendChild(dialog)
-        dialog.addEventListener('click', e => {
-          const dialogDimensions = dialog.getBoundingClientRect()
-          if (
-            e.clientX < dialogDimensions.left ||
-            e.clientX > dialogDimensions.right ||
-            e.clientY < dialogDimensions.top ||
-            e.clientY > dialogDimensions.bottom
-          ) {
-            dialog.close()
-          }
-        })
+        .filter(index => typeof index !== 'undefined')
+      let accountNumber = valueRow
+        .querySelectorAll('td')!
+      [arrHeaderIndexes[0]].innerText.trim()
 
-        dialog.showModal()
-      }
+      const [num1, num2, num3] = accountNumber.split('-')
+      accountNumber = `${num1}${num2.padStart(13, '0')}${num3}`
+      let totalToPay = `RSD${valueRow
+        .querySelectorAll('td')!
+      [arrHeaderIndexes[1]].innerText.trim().replace(".", "")}`
+      // Handle . in 1000's
+
+      let reqObj = buildBody(
+        GenerateReqObject(accountNumber, totalToPay, callToNumber)
+      )
+      let url = 'https://nbs.rs/QRcode/api/qr/v1/gen/500'
+      console.log(reqObj)
+      console.log(url)
+      let res = await fetch(url, reqObj)
+      let dialog = document.createElement('dialog')
+      let image = document.createElement('img')
+      image.src = URL.createObjectURL(await res.blob())
+      dialog.appendChild(image)
+      container.appendChild(dialog)
+      dialog.addEventListener('click', e => {
+        const dialogDimensions = dialog.getBoundingClientRect()
+        if (
+          e.clientX < dialogDimensions.left ||
+          e.clientX > dialogDimensions.right ||
+          e.clientY < dialogDimensions.top ||
+          e.clientY > dialogDimensions.bottom
+        ) {
+          dialog.close()
+        }
+      })
+
+      dialog.showModal()
     }
   })
 
@@ -119,7 +119,7 @@ const watchPattern = new MatchPattern('*://lpa.gov.rs/jisportal/wus/obveznik/*')
 
 export default defineContentScript({
   matches: ['https://lpa.gov.rs/*'],
-  async main (ctx) {
+  async main(ctx) {
     ctx.addEventListener(window, 'wxt:locationchange', async ({ newUrl }) => {
       if (watchPattern.includes(newUrl)) await mainWatchSPA(ctx);
       // if (newUrl.search.includes('wusdatalist')) await mainWatchSPA(ctx)
