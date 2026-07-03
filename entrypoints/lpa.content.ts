@@ -120,9 +120,9 @@ const watchPattern = new MatchPattern('*://lpa.gov.rs/jisportal/wus/obveznik/*')
 export default defineContentScript({
   matches: ['https://lpa.gov.rs/*'],
   async main(ctx) {
+    if(watchPattern.includes(document.location.href)) await mainWatchSPA(ctx);
     ctx.addEventListener(window, 'wxt:locationchange', async ({ newUrl }) => {
       if (watchPattern.includes(newUrl)) await mainWatchSPA(ctx);
-      // if (newUrl.search.includes('wusdatalist')) await mainWatchSPA(ctx)
     })
   }
 })
